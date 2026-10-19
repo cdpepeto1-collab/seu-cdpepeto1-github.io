@@ -16,11 +16,13 @@
   --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:70px}
+html{scroll-behavior:smooth;scroll-padding-top:70px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:4px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.wrap>*{min-width:0}
+body{overflow-x:clip}
 section{padding:72px 0;border-top:1px solid var(--line)}
 .eyebrow{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);font-weight:600}
 h2{font-size:clamp(1.8rem,4vw,2.4rem);font-weight:700;line-height:1.2;margin:4px 0 28px}
@@ -37,7 +39,8 @@ header{position:sticky;top:0;z-index:50;background:rgba(5,11,24,.88);backdrop-fi
 .menu a:hover,.menu a.active{color:var(--text);border-color:var(--blue)}
 .social{display:flex;gap:16px;font-size:1.25rem}
 .social a:hover{color:var(--cyan)}
-.burger{display:none;background:none;border:1px solid var(--line2);color:var(--text);border-radius:8px;padding:8px;font-size:1.2rem;cursor:pointer}
+.burger{display:none;place-items:center;width:44px;height:44px;padding:0;background:none;border:1px solid var(--line2);color:var(--text);border-radius:10px;font-size:1.4rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.burger[aria-expanded="true"]{background:rgba(27,140,255,.15);border-color:var(--blue)}
 
 /* Hero */
 .hero{border:0;padding:72px 0 64px;background:radial-gradient(900px 400px at 85% 20%,rgba(27,140,255,.18),transparent 60%)}
@@ -126,18 +129,29 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:1
   .about{grid-template-columns:1fr}
   .photo{min-height:200px}
 }
+@media(max-width:900px){
+  .burger{display:grid}
+  header .social{display:none}
+  .menu{display:none;position:absolute;top:62px;left:0;right:0;z-index:60;flex-direction:column;gap:0;background:var(--bg2);border-bottom:1px solid var(--line);padding:8px 24px;box-shadow:0 12px 24px rgba(0,0,0,.28);max-height:calc(100vh - 62px);max-height:calc(100dvh - 62px);overflow-y:auto}
+  .menu.open{display:flex}
+  .menu a{display:block;padding:14px 0;border:0;min-height:44px;touch-action:manipulation}
+  .menu a.active{color:var(--cyan)}
+}
 @media(max-width:760px){
   .hero .wrap,.exp,.contact{grid-template-columns:1fr}
   .reach{border:0;padding:0}
-  .burger{display:block}
-  .social{display:none}
-  .menu{display:none;position:absolute;top:62px;left:0;right:0;z-index:60;flex-direction:column;gap:0;background:var(--bg2);border-bottom:1px solid var(--line);padding:8px 24px;box-shadow:0 12px 24px rgba(0,0,0,.28)}
-  .menu.open{display:flex}
-  .menu a{display:block;padding:14px 0;border:0;min-height:44px;touch-action:manipulation}
 }
 @media(max-width:520px){.skills,.projects{grid-template-columns:1fr 1fr}.projects{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
+<noscript><style>
+@media(max-width:900px){
+  .burger{display:none!important}
+  .nav{height:auto;flex-wrap:wrap;padding:10px 0}
+  .menu{display:flex!important;position:static;flex-direction:row;flex-wrap:wrap;gap:4px 18px;width:100%;padding:0;box-shadow:none;background:none}
+  .menu a{min-height:0;padding:6px 0}
+}
+</style></noscript>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -351,6 +365,12 @@ burger.addEventListener('click', () => {
 menu.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', () => fecharMenu());
 });
+
+// Fecha o menu ao tocar fora dele ou ao ampliar a tela.
+document.addEventListener('click', event => {
+  if (menu.classList.contains('open') && !menu.contains(event.target) && !burger.contains(event.target)) fecharMenu();
+});
+window.matchMedia('(min-width: 901px)').addEventListener('change', event => { if (event.matches) fecharMenu(); });
 
 // Fecha o menu ao pressionar Escape.
 document.addEventListener('keydown', event => {
